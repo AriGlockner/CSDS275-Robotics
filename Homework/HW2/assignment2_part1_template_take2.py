@@ -3,50 +3,37 @@
 """
 Created on Sat Jul  1 17:16:06 2023
 
-@author: ari
+@author: zxc703
 """
-import math
-
 import coppeliasim_zmqremoteapi_client as zmq
 import matplotlib.pyplot as plt
 import numpy as np
 import ecse275utils as util
-from queue import PriorityQueue
 
 
-# %%
-def manhatten_distance(x1, x2, y1, y2):
+def manhattan_distance(x1, y1, x2, y2):
     """
-    Helper method that calculates the distance between two points
-
-    :param x1: x1 coordinate
-    :param x2: x2 coordinate
-    :param y1: y1 coordinate
-    :param y2: y2 coordinate
-    :return: the distance between two points
+    :param x1: x coordinate of the first point
+    :param y1: y coordinate of the first point
+    :param x2: x coordinate of the second point
+    :param y2: y coordinate of the second point
+    :return: the manhattan distance between the two points
     """
-
     return abs(x1 - x2) + abs(y1 - y2)
 
 
+# %%
 class ASTAR:
     """
     The key object here is the state object which is a dictionary to track our state
-    
+
     it comprises the following
-    'explored_set' is a list for you to populate with individual tuples of (row,column)
-    index for nodes that have been explored
-    'open_set' is a list for you to populate with nodes that have yet to be explored.
-    We initialized it for you with one element, the start point.
-    'world_map' is the grid map that contains information about the grid world,
-    obstacles are 1, and the goal is 2, open space is 0
-    'world_map_g' is the grid that should store the cost to go values corresponding
-    to that row and column in the world_map
-    'world_map_h' is the grid that should store the cost to reach/come values corresponding
-    to that row and column in the world_map
-    'parents_map' is a 4 dimensional array, the first two dimensions are the same dimensions
-    as the world map, the next two are for storing the row column values corresponding to the
-    parent cell for that given position in the grid map
+    'explored_set' is a list for you to populate with individual tuples of (row,column) index for nodes that have been explored
+    'open_set' is a list for you to populate with nodes that have yet to be explored. We initialized it for you with one element, the start point.
+    'world_map' is the grid map that contains information about the grid world, obstacles are 1, and the goal is 2, open space is 0
+    'world_map_g' is the grid that should store the cost to go values corresponding to that row and column in the world_map
+    'world_map_h' is the grid that should store the cost to reach/come values corresponding to that row and column in the world_map
+    'parents_map' is a 4 dimensional array, the first two dimensions are the same dimensions as the world map, the next two are for storing the row column values corresponding to the parent cell for that given position in the grid map
     """
 
     def __init__(self, world_map, start, end):
@@ -63,6 +50,7 @@ class ASTAR:
         Returns
         -------
         None.
+
         """
 
         self.state = {'explored_set': [],
@@ -82,32 +70,34 @@ class ASTAR:
         self.state['world_map_h'][self.start_point[0], self.start_point[1]] = self.get_cost_to_goal(self.start_point[0],
                                                                                                     self.start_point[1])
 
-    def get_parent_point(self, grid_row, grid_col):
+    def get_parent_point(self, gridrow, gridcol):
         """
         Parameters
         ----------
-        grid_row : int
+        gridrow : int
             the row position of the cell you are querying
-        grid_col: int
-            the column position of the cell you are querying
+        gridcol: int
+            thee column position of the cell you are querying
         Returns
         -------
         tuple of the parent cell location as a row and column in the grid world
 
         """
 
-        parent_r = int(self.state['parents_map'][grid_row, grid_col][0])
-        parent_c = int(self.state['parents_map'][grid_row, grid_col][1])
+        parent_r = int(self.state['parents_map'][gridrow, gridcol][0])
+        parent_c = int(self.state['parents_map'][gridrow, gridcol][1])
 
         return parent_r, parent_c
 
-    def set_parent_point(self, grid_row_parent, grid_col_parent):
+    def set_parent_point(self, gridrow_parent, gridcol_parent):
         """
+
+
         Parameters
         ----------
-        grid_row_parent : int
+        gridrow_parent : int
             the row location of the parent cell
-        grid_col_parent : int
+        gridcol_parent : int
             the column location of the parent cell
 
         Returns
@@ -117,15 +107,16 @@ class ASTAR:
 
         """
 
-        return np.array([grid_row_parent, grid_col_parent])
+        return np.array([gridrow_parent, gridcol_parent])
 
-    def get_cost_to_reach(self, grid_row_parent, grid_col_parent):
+    def get_cost_to_reach(self, gridrow_parent, gridcol_parent):
         """
+
         Parameters
         ----------
-        grid_row_parent : int
+        gridrow_parent : int
             row location of the parent cell
-        grid_col_parent : int
+        gridcol_parent : int
             column location of the parent cell
 
         Returns
@@ -134,9 +125,8 @@ class ASTAR:
             the cost to reach the current cell
 
         """
-        # TODO: Fix once I know what the current point is
-        # return distance(grid_row_parent, gridrow, grid_col_parent, grid_col_current)
-        return manhatten_distance(grid_row_parent, self.state[0], grid_col_parent, self.state[1])
+        # TODO: Check if working
+        return manhattan_distance(gridrow_parent, gridcol_parent, self.start_point[0], self.start_point[1])
 
     def get_cost_to_goal(self, gridrow, gridcol):
         """
@@ -144,9 +134,9 @@ class ASTAR:
 
         Parameters
         ----------
-        grid_row_parent : int
+        gridrow_parent : int
             row location of the parent cell
-        grid_col_parent : int
+        gridcol_parent : int
             column location of the parent cell
 
         Returns
@@ -155,20 +145,20 @@ class ASTAR:
             the estimated cost to reach the goal
 
         """
-        # TODO: Check if the variables are correct once I read the assignment
-        return manhatten_distance(gridrow, self.end_point[0], gridcol, self.end_point[1])
+        # TODO: Check if working
+        return manhattan_distance(gridrow, gridcol, self.end_point[0], self.end_point[1])
 
-    def get_cost(self, grid_row, grid_col):
+    def sort_by(self, gridrow, gridcol):
         """
-
-        :param grid_row:
-        :param grid_col:
-        :return:
+        Function to sort the open set by the cost
+        :param gridrow: row position
+        :param gridcol: column position
+        :return: the summed cost of the cost to goal and cost to reach
         """
+        return self.get_cost_to_reach(gridrow, gridcol) + self.get_cost_to_goal(gridrow, gridcol)
 
-        return self.get_cost_to_reach(grid_row, grid_col) + self.get_cost_to_goal(grid_row, grid_col)
 
-    def search_surrounding_nodes(self, grid_row, grid_col):
+    def search_surrounding_nodes(self, gridrow, gridcol):
         """
         Function to add the surrounding nodes around a cell into the open set.
 
@@ -183,61 +173,73 @@ class ASTAR:
 
         Parameters
         ----------
-        grid_row : int
+        gridrow : int
             the row position of the cell you are querying
-        grid_col: int
-            the column position of the cell you are querying
+        gridcol: int
+            thee column position of the cell you are querying
 
         Returns
         -------
         None.
 
         """
-        # Create the list of surrounding nodes
-        surrounding_nodes = [self.process_node(grid_row + i, grid_col + j) for i in [-1, 1] for j in [-1, 1]]
+        # TODO: Check if working
 
-        # Check each node in the list
-        for node in surrounding_nodes:
-            # TODO: Fill in the rest of this
-            # Check if the node is in the workspace bounds
-            if node == 0:
-                # Empty Space - Add to open set
-                pass
-            elif node == 1:
-                # Obstacle - Remove from open set and add to explored set
-                pass
-            elif node == 2:
-                # Goal - Remove from open set and add to explored set
-                pass
+        # Get the surrounding nodes
+        for r in [gridrow-1, gridrow+1]:
+            for c in [gridcol-1, gridcol+1]:
+                # Check if the node is in the workspace bounds
+                if 0 <= r < self.world_dims[0] and 0 <= c < self.world_dims[1]:
+                    # Check if the node is not an obstacle
+                    if self.state['world_map'][r, c] != 1:
+                        # Check if the node is not already explored or in the open set
+                        if [r, c] not in self.state['open_set'] and [r, c] not in self.state['explored_set']:
+                            # Add the node to the open set
+                            self.state['open_set'].append([r, c])
 
+                            # Calculate the cost to go and the cost to come and store them
+                            self.state['world_map_h'][r, c] = self.get_cost_to_goal(r, c)
+                            self.state['world_map_g'][r, c] = self.get_cost_to_reach(gridrow, gridcol)
+                            self.state['parents_map'][r, c] = self.set_parent_point(gridrow, gridcol)
 
-    def process_node(self, grid_row, grid_col):
+        # Remove the current node from the open set and add it to the explored set
+        self.state['open_set'].remove([gridrow, gridcol])
+
+    def process_node(self, gridrow, gridcol):
         """
         In this function we want to:
         1. check if we reach the goal
-        2. else check if we hit an obstacle, if so remove it from the open set and immediately add it
-        to the explored set
+        2. else check if we hit an obstacle, if so remove it from the open set and immediately add it to the explored set
         3. else execute the search of surrounding nodes function
-        
+
+
         Parameters
         ----------
-        grid_row : int
+        gridrow : int
             the row position of the cell you are querying
-        grid_col: int
-            the column position of the cell you are querying
+        gridcol: int
+            thee column position of the cell you are querying
 
         Returns
         -------
         int
             the state of the cell, either 2 for goal, 1 for obstacle, 0 for empty space
         """
-        # TODO: Fill in the rest of this
-        # your code here
-        if grid_row == self.end_point[0] and grid_col == self.end_point[1]:
+        # TODO: Check if working
+
+        # Check if we reach the goal
+        if self.state['world_map'][gridrow, gridcol] == 2:
             return 2
-        elif self.state['world_map'][grid_row, grid_col] == 1:
+        # Check if we hit an obstacle
+        elif self.state['world_map'][gridrow, gridcol] == 1:
+            # Remove it from the open set and immediately add it to the explored set
+            self.state['open_set'].remove([gridrow, gridcol])
+            self.state['explored_set'].append([gridrow, gridcol])
             return 1
-        return 0
+        # Execute the search of surrounding nodes function
+        else:
+            self.search_surrounding_nodes(gridrow, gridcol)
+            return 0
 
     def visualize_state(self):
         """
@@ -262,8 +264,7 @@ class ASTAR:
         This function will run ASTAR by
         1. Checking the open set and ranking the nodes by the cost.
         2. Process the lowest cost node until we find the goal or hit the maximum number of iterations
-        3. Once this is done the path through the grid map must be traced backward by looking up the
-        parent nodes until the start point
+        3. Once this is done the path through the grid map must be traced backward by looking up the parent nodes until the start point
         4. Return the paths
 
 
@@ -277,44 +278,52 @@ class ASTAR:
         list
             sequence of 2D points (row,column) for each cell of the path found by ASTAR
         """
-
-        # TODO: Fill in the rest of this
-        #
-
-        # Initialize the path node list with the start point in it
-        pq = PriorityQueue()
-        pq.put((0, self.start_point))
-
+        # TODO: Fill this in
         # your code here
-        while (not pq.empty()) and (max_iter > 0):
-            max_iter -= 1
 
-            # Get the next node to process
-            current_node = pq.get()
+        # Initialize the iteration counter
+        iter_count = 0
 
-            # Check the current node
-            state = self.process_node(current_node[1][0], current_node[1][1])
+        # While the open set is not empty and the maximum number of iterations is not reached
+        while self.state['open_set'] and iter_count < max_iter:
+            # Sort the open set by the cost
+            # TODO: Check if there is a bug on the next line
+            self.state['open_set'].sort(key=lambda x: self.sort_by(x[0], x[1]))
+            # self.state['open_set'].sort(key=lambda x: self.state['world_map_g'][x[0], x[1]] + self.state['world_map_h'][x[0], x[1]])
 
+            # Get the node with the lowest cost
+            node = self.state['open_set'][0]
+            # Process the node
+            state = self.process_node(node[0], node[1])
+            # If we reach the goal
             if state == 2:
-                # We have reached the goal
-                break
+                # Trace the path through the grid map backward by looking up the parent nodes until the start point
+                self.traced_path_rc = self.trace_path(node[0], node[1])
+                # Return the paths
+                return self.traced_path_rc
+            # Increment the iteration counter
+            iter_count += 1
 
-            elif state == 1:
-                # We have hit an obstacle
-                continue
+        # If we reach the maximum number of iterations
+        return None
 
-            else:
-                # We have an empty space
-                pass
+    def trace_path(self, row, col):
+        """
+        This function will trace the path through the grid map backward by looking up the parent nodes until the start point
+        :param row:
+        :param col:
+        :return: the traced path
+        """
+        # TODO: Check if working
+        # Get the prior node
+        prior = self.state['parents_map'][row, col]
 
-            # Process the surrounding nodes
-            self.search_surrounding_nodes(current_node[1][0], current_node[1][1])
-            
-
-
-
-
-        return path_node_list
+        # If we reach the start point
+        if prior[0] == self.start_point[0] and prior[1] == self.start_point[1]:
+            return [[row, col]]
+        # If we don't reach the start point
+        else:
+            return self.trace_path(prior[0], prior[1]) + [[row, col]]
 
 
 # %%

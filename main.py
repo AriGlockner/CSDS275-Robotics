@@ -1,9 +1,11 @@
-import matplotlib.pyplot as plt
-import numpy as np
+import random
+from queue import PriorityQueue
 
-test_list = ["hello", 9, 2, 3, 4]
+pq = PriorityQueue()
 
-second_element_of_the_list = test_list[1]
+length = 10
 
-test_tuple = ("hello", 9)
-test_list[1] = 10
+[pq.put(random.randint(1, 100)) for i in range(length)]
+print(pq)
+[print(pq.get()) for j in range(length)]
+print(pq)
