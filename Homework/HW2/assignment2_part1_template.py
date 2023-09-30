@@ -318,13 +318,13 @@ class ASTAR:
 
 
 # %%
-
+'''
 if __name__ == '__main__':
-    '''
+    ''
      This main function initializes the world from the vision sensor in coppelia sim.
      Once this is done it creates an ASTAR object and then runs ASTAR for the specified number of iterations
      It uses the path list to define a real path in coppelia sim from which the robot will follow.
-     '''
+     ''
 
     client = zmq.RemoteAPIClient()
     sim = client.getObject('sim')
@@ -355,3 +355,4 @@ if __name__ == '__main__':
 
     trackpoint = sim.getObjectHandle("/track_point")
     util.execute_path(coppelia_path, sim, trackpoint, robot, thresh=0.1)
+'''

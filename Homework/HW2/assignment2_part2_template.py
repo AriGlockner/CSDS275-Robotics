@@ -11,8 +11,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import ecse275utils as util
 
+
 def rep_hyper_vec(distances, eta=1, max_dist=2, min_dist=1):
-    '''
+    """
     Question 1
     hyperbolic repulsive field function
 
@@ -32,7 +33,7 @@ def rep_hyper_vec(distances, eta=1, max_dist=2, min_dist=1):
     U : TYPE
         DESCRIPTION.
 
-    '''
+    """
     
     U = np.zeros_like(distances)
     
@@ -45,17 +46,16 @@ def rep_hyper_vec(distances, eta=1, max_dist=2, min_dist=1):
     distance = distances[mask] 
     
     # Fill this in for points between the minium and maximum threshold
-    U[mask] = 
+    U[mask] = eta*(1/distance-1/max_dist)**2
     
     mask = (distances < min_dist)
     # Fill this in for points below the minimum threshold
-    U[mask] = 
+    U[mask] = eta*(1/min_dist-1/max_dist)**2
     
     return U
 
 def att_quadcone_vec(dist,eta1=1,eta2=10,thresh=2):
-    '''
-    
+    """
     Question 2
     quadratic-conic attractive field function
 
@@ -75,10 +75,10 @@ def att_quadcone_vec(dist,eta1=1,eta2=10,thresh=2):
     TYPE
         DESCRIPTION.
 
-    '''
+    """
     U = np.zeros_like(dist)
-    h,w = U.shape
-    mask = (dist<=thresh)
+    h, w = U.shape
+    mask = (dist <= thresh)
     
     U = U.reshape((-1))
     mask = mask.reshape((-1))
@@ -86,14 +86,14 @@ def att_quadcone_vec(dist,eta1=1,eta2=10,thresh=2):
     
     # Fill this in for points below the threshold
     distance = dist[mask] # provided distance value
-    U[mask] = 
+    U[mask] = eta1/2*distance**2
 
-    mask = (dist>thresh)
+    mask = (dist > thresh)
     # Fill this in for points above the threshold
     distance = dist[mask] # provided distance value
-    U[mask] = 
+    U[mask] = eta2*distance-eta2/2*thresh**2
     
-    return U.reshape(h,w)
+    return U.reshape(h, w)
 
 #%%
 if __name__ == '__main__':

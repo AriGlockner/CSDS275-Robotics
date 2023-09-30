@@ -134,9 +134,9 @@ class ASTAR:
 
         Parameters
         ----------
-        gridrow_parent : int
+        gridrow : int
             row location of the parent cell
-        gridcol_parent : int
+        gridcol : int
             column location of the parent cell
 
         Returns
@@ -148,15 +148,13 @@ class ASTAR:
         # TODO: Check if working
         return manhattan_distance(gridrow, gridcol, self.end_point[0], self.end_point[1])
 
-    def sort_by(self, gridrow, gridcol):
+    def sort_by(self, node):
         """
         Function to sort the open set by the cost
-        :param gridrow: row position
-        :param gridcol: column position
+        :param node: the node to get the heuristic cost for
         :return: the summed cost of the cost to goal and cost to reach
         """
-        return self.get_cost_to_reach(gridrow, gridcol) + self.get_cost_to_goal(gridrow, gridcol)
-
+        return self.get_cost_to_reach(node[0], node[1]) + self.get_cost_to_goal(node[0], node[1])
 
     def search_surrounding_nodes(self, gridrow, gridcol):
         """
@@ -184,23 +182,32 @@ class ASTAR:
 
         """
         # TODO: Check if working
-
         # Get the surrounding nodes
-        for r in [gridrow-1, gridrow+1]:
-            for c in [gridcol-1, gridcol+1]:
-                # Check if the node is in the workspace bounds
-                if 0 <= r < self.world_dims[0] and 0 <= c < self.world_dims[1]:
-                    # Check if the node is not an obstacle
-                    if self.state['world_map'][r, c] != 1:
-                        # Check if the node is not already explored or in the open set
-                        if [r, c] not in self.state['open_set'] and [r, c] not in self.state['explored_set']:
-                            # Add the node to the open set
-                            self.state['open_set'].append([r, c])
+        surrounding_nodes = []
+        for r in [gridrow - 1, gridrow + 1]:
+            surrounding_nodes.append([r, gridcol])
+        for c in [gridcol - 1, gridcol + 1]:
+            surrounding_nodes.append([gridrow, c])
 
-                            # Calculate the cost to go and the cost to come and store them
-                            self.state['world_map_h'][r, c] = self.get_cost_to_goal(r, c)
-                            self.state['world_map_g'][r, c] = self.get_cost_to_reach(gridrow, gridcol)
-                            self.state['parents_map'][r, c] = self.set_parent_point(gridrow, gridcol)
+        print('surrounding_nodes', surrounding_nodes)
+
+        # For each of the surrounding nodes, get the row and column values
+        for node in surrounding_nodes:
+            # Check if the neighbor node is in the workspace bounds
+            if 0 <= node[0] < self.world_dims[0] and 0 <= c < self.world_dims[1]:
+                row = node[0]
+                col = node[1]
+                # Check if the neighbor node is not an obstacle
+                if self.state['world_map'][row, col] != 1:
+                    # Check if the node is not already explored or in the open set
+                    if [r, c] not in self.state['open_set'] and [r, c] not in self.state['explored_set']:
+                        # Add the node to the open set
+                        self.state['open_set'].append([r, c])
+
+                        # Calculate the cost to go and the cost to come and store them
+                        self.state['world_map_h'][r, c] = self.get_cost_to_goal(r, c)
+                        self.state['world_map_g'][r, c] = self.get_cost_to_reach(gridrow, gridcol)
+                        self.state['parents_map'][r, c] = self.set_parent_point(gridrow, gridcol)
 
         # Remove the current node from the open set and add it to the explored set
         self.state['open_set'].remove([gridrow, gridcol])
@@ -226,18 +233,25 @@ class ASTAR:
             the state of the cell, either 2 for goal, 1 for obstacle, 0 for empty space
         """
         # TODO: Check if working
+        # print('Processing node:', gridrow, gridcol, 'State:', self.state['world_map'][gridrow, gridcol])
+        print(self.start_point[0] < gridrow < self.end_point[0], self.start_point[1] < gridcol < self.end_point[1])
+
+        state = self.state['world_map'][gridrow, gridcol]
 
         # Check if we reach the goal
-        if self.state['world_map'][gridrow, gridcol] == 2:
+        if state == 2:
             return 2
         # Check if we hit an obstacle
-        elif self.state['world_map'][gridrow, gridcol] == 1:
+        elif state == 1:
+            # TODO: Figure out why the initial position of the robot is an obstacle
             # Remove it from the open set and immediately add it to the explored set
             self.state['open_set'].remove([gridrow, gridcol])
             self.state['explored_set'].append([gridrow, gridcol])
             return 1
         # Execute the search of surrounding nodes function
         else:
+            self.state['open_set'].remove([gridrow, gridcol])
+            self.state['explored_set'].append([gridrow, gridcol])
             self.search_surrounding_nodes(gridrow, gridcol)
             return 0
 
@@ -279,22 +293,28 @@ class ASTAR:
             sequence of 2D points (row,column) for each cell of the path found by ASTAR
         """
         # TODO: Fill this in
-        # your code here
+        #print(self.state['world_map'])
 
         # Initialize the iteration counter
         iter_count = 0
 
+        print(self.start_point)
+        print(self.end_point)
+
         # While the open set is not empty and the maximum number of iterations is not reached
         while self.state['open_set'] and iter_count < max_iter:
             # Sort the open set by the cost
+            # TODO: maybe iterate through all and find lowest rather than sorting O(n) vs O(nlog(n))
             # TODO: Check if there is a bug on the next line
-            self.state['open_set'].sort(key=lambda x: self.sort_by(x[0], x[1]))
-            # self.state['open_set'].sort(key=lambda x: self.state['world_map_g'][x[0], x[1]] + self.state['world_map_h'][x[0], x[1]])
+            self.state['open_set'].sort(key=self.sort_by, reverse=True)
 
             # Get the node with the lowest cost
             node = self.state['open_set'][0]
             # Process the node
             state = self.process_node(node[0], node[1])
+            plt.plot(node[1], node[0], '.', markersize=4, color="black")
+            print('node', node, 'State:', state)
+            # print('node', node, 'State:', state)
             # If we reach the goal
             if state == 2:
                 # Trace the path through the grid map backward by looking up the parent nodes until the start point
@@ -303,7 +323,8 @@ class ASTAR:
                 return self.traced_path_rc
             # Increment the iteration counter
             iter_count += 1
-
+        print(max_iter, iter_count)
+        plt.show()
         # If we reach the maximum number of iterations
         return None
 
@@ -330,37 +351,51 @@ class ASTAR:
 
 if __name__ == '__main__':
     '''
-     This main function initializes the world from the vision sensor in coppelia sim.
-     Once this is done it creates an ASTAR object and then runs ASTAR for the specified number of iterations
-     It uses the path list to define a real path in coppelia sim from which the robot will follow.
-     '''
-
+    This main function initializes the world from the vision sensor in coppelia sim.
+    Once this is done it creates an ASTAR object and then runs ASTAR for the specified number of iterations
+    It uses the path list to define a real path in coppelia sim from which the robot will follow.
+    '''
+    print('starting from coppelia sim')
+    # Initialize the world
     client = zmq.RemoteAPIClient()
     sim = client.getObject('sim')
+    print('Connected to remote API server')
 
+    # Grab the world map from coppeliasim
     worldmap = util.gridmap(sim, 5.0)
     worldmap.inflate_obstacles(num_iter=10)  # YOU CAN MODIFY THE INFLATION ITERATIONS
     worldmap.normalize_map()
     worldmap.plot(normalized=True)
 
+    # Grab the goal positions
     goal = sim.getObjectHandle("/goal_point")
     goal_world = sim.getObjectPosition(goal, sim.handle_world)
     goal_grid = worldmap.get_grid_coords(goal_world)
     worldmap.plot_point(goal_grid)
+
+    # Grab the robot positions
     robot = sim.getObjectHandle("/Pure_Robot/Dummy")
     start_world = sim.getObjectPosition(robot, sim.handle_world)
     start_grid = worldmap.get_grid_coords(start_world)
     worldmap.plot_point(start_grid, color='red')
 
+    # Run A*
     astar = ASTAR(worldmap.norm_map, start_grid, goal_grid)
-    trace_grid = astar.run(max_iter=50000)  # YOU CAN MODIFY THE ASTAR ITERATIONS
+    trace_grid = astar.run(max_iter=1000)  # 50000 - YOU CAN MODIFY THE ASTAR ITERATIONS
     astar.visualize_state()
 
-    trace_grid = np.fliplr(np.array(trace_grid))
-    m, n = trace_grid.shape
-    trace_grid = np.hstack((trace_grid, np.zeros((m, 1))))
-    trace_world = worldmap.get_world_coords(np.array(trace_grid).reshape((-1, 3)))
-    coppelia_path = util.generate_path_from_trace(sim, trace_world, 100)
+    # Check if A* found a path
+    if trace_grid is None:
+        print('no path found')
+    else:
+        # Convert the path to world coordinates
+        trace_grid = np.fliplr(np.array(trace_grid))
+        m, n = trace_grid.shape
+        # Trace the path in coppelia sim
+        trace_grid = np.hstack((trace_grid, np.zeros((m, 1))))
+        trace_world = worldmap.get_world_coords(np.array(trace_grid).reshape((-1, 3)))
+        coppelia_path = util.generate_path_from_trace(sim, trace_world, 100)
 
-    trackpoint = sim.getObjectHandle("/track_point")
-    util.execute_path(coppelia_path, sim, trackpoint, robot, thresh=0.1)
+        # Execute the path in coppelia sim
+        trackpoint = sim.getObjectHandle("/track_point")
+        util.execute_path(coppelia_path, sim, trackpoint, robot, thresh=0.1)
