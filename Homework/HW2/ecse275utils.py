@@ -160,7 +160,7 @@ def execute_path(pathData_array,sim,trackpoint_handle,robot_handle,thresh=0.1):
         trackpt_pos = sim.getObjectPosition(trackpoint_handle,sim.handle_world)
         # compute the distance between the trackpt position and the robot
         rob_trackpt_dist = np.linalg.norm(np.array(robot_pos)-np.array(trackpt_pos))
-        print(rob_trackpt_dist)
+        #print(rob_trackpt_dist)
         if rob_trackpt_dist < thresh:
             path_index = path_index + 1
             print("next_point")
@@ -264,25 +264,25 @@ def discrete_grad_descent(start,end,grad,step=1,max_iter=2000):
     
     height, width = grad[0,:,:].shape
     
-    print("start_point (y,x): " + str(current_point))
+    #print("start_point (y,x): " + str(current_point))
     while ((current_point[0] != end[0]) or (current_point[1]!=end[1])) and (n<=max_iter):
-        print("iteration: " + str(n))
+        #print("iteration: " + str(n))
         #get gradient at the point:
         point_grad = -grad[:,int(current_point[0]),int(current_point[1])]
-        print(point_grad)
+        #print(point_grad)
         #point_grad = np.round(point_grad)
         mask = np.abs(point_grad)>0
         point_grad[mask] = point_grad[mask]/np.abs(point_grad[mask])
-        print(point_grad)
+        #print(point_grad)
         
         next_point = current_point+point_grad*step
-        print(next_point)
+        #print(next_point)
         if (next_point[0] > height-1 or next_point[0]<0) or (next_point[1] > width-1 or next_point[1]<0) :
             pass
         else:
             current_point = next_point
             
-        print("current_point (y,x): " + str(current_point))
+        #print("current_point (y,x): " + str(current_point))
         point_list.append(current_point)
         n=n+1
 

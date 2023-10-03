@@ -125,7 +125,6 @@ class ASTAR:
             the cost to reach the current cell
 
         """
-        # TODO: Check if working
         return manhattan_distance(gridrow_parent, gridcol_parent, self.start_point[0], self.start_point[1])
 
     def get_cost_to_goal(self, gridrow, gridcol):
@@ -145,7 +144,6 @@ class ASTAR:
             the estimated cost to reach the goal
 
         """
-        # TODO: Check if working
         return manhattan_distance(gridrow, gridcol, self.end_point[0], self.end_point[1])
 
     def sort_by(self, node):
@@ -210,7 +208,8 @@ class ASTAR:
                         self.state['parents_map'][r, c] = self.set_parent_point(gridrow, gridcol)
 
         # Remove the current node from the open set and add it to the explored set
-        self.state['open_set'].remove([gridrow, gridcol])
+        if [gridrow, gridcol] in self.state['open_set']:
+            self.state['open_set'].remove([gridrow, gridcol])
 
     def process_node(self, gridrow, gridcol):
         """
@@ -307,6 +306,7 @@ class ASTAR:
             # TODO: maybe iterate through all and find lowest rather than sorting O(n) vs O(nlog(n))
             # TODO: Check if there is a bug on the next line
             self.state['open_set'].sort(key=self.sort_by, reverse=True)
+            print('open_set', self.state['open_set'])
 
             # Get the node with the lowest cost
             node = self.state['open_set'][0]
