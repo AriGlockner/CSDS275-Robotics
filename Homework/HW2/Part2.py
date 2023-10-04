@@ -162,8 +162,9 @@ if __name__ == '__main__':
     robot_pos_grid = worldmap.get_grid_coords(robot_pos)
 
     # QUESTION 8
-    path = util.discrete_grad_descent(robot_pos_grid, goal_grid, world_ugrad,
-                                      max_iter=300)  # this line computes gradient descent. you can run this individually
+    # this line computes gradient descent. you can run this individually
+    path = util.discrete_grad_descent(robot_pos_grid, goal_grid, world_ugrad, max_iter=300)
+
     # util.visualize_potential_field_2D(world_u)
     worldmap.plot(normalized=True)
     util.plot_gradient_descent(plt.gca(), path)

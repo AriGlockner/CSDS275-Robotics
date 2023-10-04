@@ -179,7 +179,8 @@ class ASTAR:
             # Check if the node is in the workspace bounds
             if 0 <= new_row < self.world_dims[0] and 0 <= new_col < self.world_dims[1]:
                 # Check if the node is already explored or in the open set
-                if self.state['world_map'][new_row, new_col] != 1 and [new_row, new_col] not in self.state['explored_set'] and [new_row, new_col] not in self.state['open_set']:
+                if self.state['world_map'][new_row, new_col] != 1 and [new_row, new_col] not in self.state[
+                    'explored_set'] and [new_row, new_col] not in self.state['open_set']:
                     # Add the node to the open set
                     self.state['open_set'].append([new_row, new_col])
 
@@ -286,40 +287,24 @@ class ASTAR:
 
             # Check if we reach the goal
             if self.process_node(node[0], node[1]) == 2:
-                self.traced_path_rc = self.trace_path()
+                self.traced_path_rc = self.trace_path(node[0], node[1])
                 return self.traced_path_rc
 
         print("Max iteration reached")
         return []
 
-    def trace_path(self):
+    def trace_path(self, x, y):
         """
-        ****************** FILL THIS IN ******************
-        :return:
+        This function computes the path to the goal node once the goal has been reached
+        :param x: the x coordinate of the current node
+        :param y: the y coordinate of the current node
+        :return: the path from the start node to the goal
         """
-        print('Searching Finished. Tracing Path...')
+        if x == self.start_point[0] and y == self.start_point[1]:
+            return [[x, y]]
+        else:
+            return [[x, y]] + self.trace_path(self.get_parent_point(x, y)[0], self.get_parent_point(x, y)[1])
 
-        # Initialize the traced path
-        traced_path = [self.end_point]
-        # Initialize the current node
-        current_node = self.end_point
-        # Initialize the parent node
-        parent_node = self.get_parent_point(current_node[0], current_node[1])
-
-        # Trace the path until we reach the start point
-        while parent_node[0] != self.start_point[0] or parent_node[1] != self.start_point[1]:
-            # Add the parent node to the traced path
-            traced_path.append(parent_node)
-            # Update the current node
-            current_node = parent_node
-            # Update the parent node
-            parent_node = self.get_parent_point(current_node[0], current_node[1])
-
-        # Add the start point to the traced path
-        traced_path.append(self.start_point)
-
-        # Return the traced path
-        return traced_path
 
 
 # %%
@@ -335,7 +320,7 @@ if __name__ == '__main__':
     sim = client.getObject('sim')
 
     worldmap = util.gridmap(sim, 5.0)
-    worldmap.inflate_obstacles(num_iter=10)  # YOU CAN MODIFY THE INFLATION ITERATIONS
+    worldmap.inflate_obstacles(num_iter=10)  # 10 - YOU CAN MODIFY THE INFLATION ITERATIONS
     worldmap.normalize_map()
     worldmap.plot(normalized=True)
 
@@ -360,3 +345,4 @@ if __name__ == '__main__':
 
     trackpoint = sim.getObjectHandle("/track_point")
     util.execute_path(coppelia_path, sim, trackpoint, robot, thresh=0.1)
+    plt.show()

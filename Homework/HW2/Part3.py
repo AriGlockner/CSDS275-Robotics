@@ -5,6 +5,7 @@ Created on Wed Jun 21 21:59:50 2023
 
 @author: zxc703
 """
+import math
 
 import coppeliasim_zmqremoteapi_client as zmq
 import matplotlib.pyplot as plt
@@ -12,10 +13,11 @@ import numpy as np
 import ecse275utils as util
 from scipy.spatial.transform import Rotation as R
 
-#%%
 
-def get_range_data(sim,scriptfuncname,transform_pose=None):
-    '''
+# %%
+
+def get_range_data(sim, scriptfuncname, transform_pose=None):
+    """
     Gets the range data of the LiDAR from Coppelia Sim
 
     Parameters
@@ -32,29 +34,27 @@ def get_range_data(sim,scriptfuncname,transform_pose=None):
     output_robotframe : Array of float64 of dimension (Nx3)
         Array of (x,y,z) positions for N LIDAR obstacle points.
 
-    '''
-    
-    output = sim.callScriptFunction(scriptfuncname,sim.scripttype_childscript)
+    """
+
+    output = sim.callScriptFunction(scriptfuncname, sim.scripttype_childscript)
     try:
-        output_robotframe = np.array(output).reshape((-1,3))
+        output_robotframe = np.array(output).reshape((-1, 3))
     except:
         output_robotframe = np.zeros_like(output_robotframe)
-    
-    
+
     if transform_pose is not None:
-        
         robot_rotmat = R.from_quat(transform_pose[3:])
-        #robot_angle = robot_rotmat.as_euler('XYZ')*180/np.pi
+        # robot_angle = robot_rotmat.as_euler('XYZ')*180/np.pi
         output_robotframe = robot_rotmat.apply(output_robotframe) + transform_pose[:3]
-        
+
     return output_robotframe
 
 
-def set_wheel_velocity(dU,sim,scriptfuncname):
-    '''
-    
+def set_wheel_velocity(dU, sim, scriptfuncname):
+    """
+
     Sets the wheel target velocities in the speed controller
-    
+
     Parameters
     ----------
     dU : 2-element numpy float vector
@@ -68,15 +68,14 @@ def set_wheel_velocity(dU,sim,scriptfuncname):
     -------
     None.
 
-    '''
-    sim.callScriptFunction(scriptfuncname,sim.scripttype_childscript,[dU[0],dU[1]])
-    
-    
-def compute_reppotgrad(point,robot_pos,eps=3, min_thresh = 1, max_thresh=15):
-    '''
-    ****************** FILL THIS IN ******************
+    """
+    sim.callScriptFunction(scriptfuncname, sim.scripttype_childscript, [dU[0], dU[1]])
+
+
+def compute_reppotgrad(point, robot_pos, eps=3, min_thresh=1, max_thresh=15):
+    """
     Repulsive gradient computation
-    
+
     Parameters
     ----------
     point : 3-element numpy float vector
@@ -84,7 +83,7 @@ def compute_reppotgrad(point,robot_pos,eps=3, min_thresh = 1, max_thresh=15):
     robot_pos : 3-element numpy float vector
         position of the robot in the world frame
     eps : float
-        repulsive parameterr.
+        repulsive parameter.
     min_thresh: float
         minimum threshold distance in (m) for the repulsive for to max out.
     max_thresh: float
@@ -94,16 +93,23 @@ def compute_reppotgrad(point,robot_pos,eps=3, min_thresh = 1, max_thresh=15):
     dU: 2-element float64 numpy vector
         the gradient of the repulsive potential
 
-    '''
-    
-        
-    return dU
+    """
 
-def compute_attpotgrad(point,robot_pos,eps1=5, eps2=5, max_thresh=5):
-    '''
-    ****************** FILL THIS IN ******************
+    # Compute the distance between the robot and the obstacle point
+    dist = math.sqrt((point[0] - robot_pos[0]) ** 2 + (point[1] - robot_pos[1]) ** 2)
+
+    # Handle the case where the distance is too small or too large
+    if dist < min_thresh or dist > max_thresh:
+        return np.zeros(2)
+
+    # Compute the gradient of the repulsive potential
+    return -eps * (1 / dist - 1 / max_thresh) * (1 / dist ** 2)
+
+
+def compute_attpotgrad(point, robot_pos, eps1=5, eps2=5, max_thresh=5):
+    """
     Attractive gradient computation
-    
+
     Parameters
     ----------
     point : 3-element numpy float vector
@@ -115,57 +121,81 @@ def compute_attpotgrad(point,robot_pos,eps1=5, eps2=5, max_thresh=5):
     eps2 : float, optional
         attractive parameter for the conic potential. The default is 5.
     max_thresh : float, optional
-        threshold distance in (m) for the boundardy between the conic and quadratic potential. The default is 5.
+        threshold distance in (m) for the boundary between the conic and quadratic potential. The default is 5.
 
     Returns
     -------
     dU : 2-element float64 numpy vector
         the gradient of the attractive potential
 
-    '''
-    
-    return dU
+    """
 
-#%%
+    # Compute the distance between the robot and the goal point
+    diff = math.sqrt((point[0] - robot_pos[0]) ** 2 + (point[1] - robot_pos[1]) ** 2)
+    dist = np.linalg.norm(diff)
+
+    if dist > max_thresh:
+        return np.zeros(2)
+    else:
+        print(eps1 * diff - eps2 * diff / dist ** 2)
+        return eps1 * diff - eps2 * diff / dist ** 2
+
+# %%
 
 run_reactive_control = True
-stop_condition = 0.05 #meters
+stop_condition = 0.05  # meters
 
 if __name__ == '__main__':
     client = zmq.RemoteAPIClient()
     sim = client.getObject('sim')
-    
+
     # initialize the worldmap from the vision sensor for visualization purposes
-    worldmap = util.gridmap(sim,5.0)
+    worldmap = util.gridmap(sim, 5.0)
     worldmap.normalize_map()
-    
+
     robot = sim.getObjectHandle("/Pure_Robot/Dummy")
     goal = sim.getObjectHandle("/goal_point")
-    
+
     # get the robot pose data
-    robot_pose = sim.getObjectPose(robot,sim.handle_world)
+    robot_pose = sim.getObjectPose(robot, sim.handle_world)
     robot_pos_world = robot_pose[:3]
-    
+
     # transform the obstacle data into the world coordinate frame and plot
     worldmap.get_obs_in_world_coords(plot=True)
     # plot the robot position
-    plt.plot(robot_pos_world[0],robot_pos_world[1],'.')
-    
+    plt.plot(robot_pos_world[0], robot_pos_world[1], '.')
+
     # acquire obstacle data from laser range finder in the object frame
-    rangedata_worldframe = get_range_data(sim,'getMeasuredData@/fastHokuyo',transform_pose = robot_pose)
+    rangedata_worldframe = get_range_data(sim, 'getMeasuredData@/fastHokuyo', transform_pose=robot_pose)
     # plot the point data from the laser range finder
-    plt.plot(rangedata_worldframe[:,0],rangedata_worldframe[:,1],'.')
-    
-    while True and run_reactive_control: # this is the while loop that runs the control
-        
-        # FILL THIS PART IN
-        
-        # HINT: GET THE RELEVANT POSITION AND LIDAR DATA 
-        
-        
-        # HINT MAKE A IF ELSE CONDITION
-        # if we are less than the stop condition slow down to a stop, else navigate to the goal
-        
-        # set the wheel velocities
-        set_wheel_velocity(dU,sim,'set_F@/Pure_Robot')
-        
+    plt.plot(rangedata_worldframe[:, 0], rangedata_worldframe[:, 1], '.')
+
+    while run_reactive_control:  # this is the while loop that runs the control
+        # Get the relevant position and LiDAR data
+        robot_pose = sim.getObjectPose(robot, sim.handle_world)
+        robot_pos_world = robot_pose[:3]
+        rangedata_worldframe = get_range_data(sim, 'getMeasuredData@/fastHokuyo', transform_pose=robot_pose)
+
+        # Compute the attractive potential gradient
+        # compute_attpotgrad(point, robot_pos, eps1=5, eps2=5, max_thresh=5)
+        dU_att = compute_attpotgrad(sim.getObjectPosition(goal, sim.handle_world), robot_pos_world, eps1=3, eps2=2,
+                                    max_thresh=5000)
+
+        # Compute the repulsive potential gradient
+        dU_rep = np.zeros(2)
+        for obstacle in rangedata_worldframe:
+            # compute_reppotgrad(point, robot_pos, eps=3, min_thresh=1, max_thresh=15):
+            dU_rep += compute_reppotgrad(obstacle, robot_pos_world, eps=2, min_thresh=1, max_thresh=2)
+
+        # Compute the total potential gradient
+        dU = dU_att + dU_rep
+
+        # Check if the robot is close enough to the goal
+        if np.linalg.norm(dU_att) < stop_condition:
+            run_reactive_control = False
+
+        # Set the wheel velocity
+        set_wheel_velocity(dU, sim, 'set_F@/Pure_Robot')
+
+    # stop the robot
+    set_wheel_velocity(np.zeros(2), sim, 'set_F@/Pure_Robot')
