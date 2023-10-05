@@ -131,7 +131,7 @@ if __name__ == '__main__':
     # YOU CAN ALTER THE PARAMETERS HERE! ************
     # Default: axis=-1, eta=1, arr=distances_rep, max_dist=15, min_dist=1
     # Current: axis=-1, eta=20, arr=distances_rep, max_dist=25, min_dist=20
-    potentials = np.apply_along_axis(rep_hyper_vec, axis=-1, eta=1, arr=distances_rep, max_dist=15, min_dist=1)
+    potentials = np.apply_along_axis(rep_hyper_vec, axis=-1, arr=distances_rep, eta=1, max_dist=15, min_dist=1)
 
     repulsive_field = np.sum(potentials, axis=-1)  # don't need to change this.
 
