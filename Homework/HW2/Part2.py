@@ -42,12 +42,10 @@ def rep_hyper_vec(distances, eta=1, max_dist=2, min_dist=1):
 
     # distance between the min and max distance -> hyperbolic function
     u[(min_dist <= distances) & (distances < max_dist)] = (
-            eta * (1 / distances[(min_dist <= distances) & (distances < max_dist)] - 1 / max_dist)) # ** 2)
-    # maybe not squared
+            eta * (1 / distances[(min_dist <= distances) & (distances < max_dist)] - 1 / max_dist))
 
     # distances < the min distance -> constant value
-    u[distances < min_dist] = eta * (1 / min_dist - 1 / max_dist) #** 2
-    # maybe not squared
+    u[distances < min_dist] = eta * (1 / min_dist - 1 / max_dist)
 
     # return the output array
     return u
@@ -75,7 +73,6 @@ def att_quadcone_vec(dist, eta1=1, eta2=10, thresh=2):
         DESCRIPTION.
 
     """
-    # TODO: Change
     # initialize the output array
     u = np.zeros_like(dist)
 
