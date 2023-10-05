@@ -1,0 +1,11 @@
+Part 3:
+	1. What does the "get_range_data" function do?
+The get_range_data function gets the range data of the LiDAR from Coppelia Sim.
+	4. https://youtu.be/egvmwagF4C4
+	5. CSDS275, HW2, Part 3, Moving Environment
+	6. List 1 pro and 1 on of this planning method
+Pro:
+Since this is a reactive to the surroundings, if the environment of the robot changes then the robot will be able to adapt to the changes that the environment has made.
+
+Con:
+Since the robot is needing to react to its environment, the robot can't plan ahead to get a path for it to follow to ensure it will reach the goal.

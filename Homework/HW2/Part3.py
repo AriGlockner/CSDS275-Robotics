@@ -138,12 +138,12 @@ def compute_attpotgrad(point, robot_pos, eps1=5, eps2=5, max_thresh=5):
     # distance is too far -> no attractive force
     if dist > max_thresh:
         return np.zeros(2)
-    # distance is between the min and max threshold -> attractive force -> conic potential
-    elif dist > 1:
-        return eps2 ** diff // dist
-    # distance is between the min and max threshold -> attractive force -> quadratic potential
+    # distance is between the min and max threshold -> quadratic attractive force
+    elif dist < max_thresh:
+        return np.multiply(eps1, diff)
+    # distance is between the max threshold -> conic attractive force
     else:
-        return eps1 ** diff
+        return eps2 * diff / dist
 
 
 # %%
