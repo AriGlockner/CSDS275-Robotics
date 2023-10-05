@@ -1,0 +1,54 @@
+Part 2:
+	4. Comment on the 3D surface plot. Describe its main features
+The color of the plot is based on the value in the z-axis of the 3D surface plot. The higher the value of z, the more yellow it looks while the lower the value of z, the more blue/black it looks. It appears that the x/y axis of the plot represent the location on the grid while the z axis represents some equation factoring in the distance to the goal and if the particular space is occupied by an object (or near an object).
+
+	5. Comment on the 2D heatmap with the vector plot. Describe how the direction and magnitude of the gradient errors change (a) near and far from obstacles and (b) near and far from the goal.
+a)
+The gradient errors at points on/near an obstacle have large magnitudes pointing away from the obstacles. The direction is determined by the opposite from getting towards the center of the obstacle.
+
+b)
+The magnitude of the gradient not near any obstacles are all tiny pointing towards the goal. The gradient for the points factoring in only the distance to the goal is negligible in comparison to the magnitudes from the obstacles.
+
+
+
+	6. What happened to the path of the robot? Why does this occur?
+The robot is able to get past the 1st wall but not the 2nd wall. For the 1st wall, the goal point is pulling the robot in the (+X, +Y) direction and the 1st wall pushes the robot in the (-X, 0) direction causing the robot to travel in the direction (0, +Y). Once the robot clears the 1st wall, the robot goes towards the goal until the robot meets the 2nd wall. At the 2nd wall, the robot will get to the point where the goal is at the same y-axis position, At this point, the wall will be pushing the robot in the direction (-X, 0) and the goal will be pulling the robot (+X, 0) causing the robot to be stuck at the 2nd wall.
+
+
+	7. Experiment with changing the constants and thresholds for the potential functions. In the main function:
+		a. Describe how changing the eta, max_dist, and min_dist in the rep_hyper_vec function changes the potential field
+
+		eta: Parameter that scales the strength of the repulsive force.
+		max_dist: If the distance to an obstacle is greater than this value, the repulsive force is 0.
+		min_dist: If the distance to an obstacle is less than this value, the repulsive force becomes constant.
+
+		b. Describe how changing the eta1, eta2, and theresh values in the att_quadcone_vec function changes the potential field
+		eta1 - controls how strong the strength of the quadratic attractive field is - aka. higher value = more force when close to goal
+eta2 - controls how strong the strength of the conic attractive field is - aka. higher value = more force when far from goal
+		thresh - the threshold distance at which the field transitions from quadratic to conic
+
+		c. Find a combination of potential function parameters that will enable the robot to successfully navigate to the goal. Attach all the relevant 3 plots like in question 3
+Best parameters:
+		Potentials:	Value:
+		eta	1
+		max_dist	15
+		min_dist	1
+
+		Attractive_field	Value:
+		eta1	0.1
+		eta2	0.2
+		thresh	5
+
+
+	8. Run the discrete_grad_descent function in the main function by itself
+		a. Comment on its speed in relation to the overall computation time
+		More iterations = longer run time. Most of the time being spent by the computer is doing the calculations. Since there are so many calculations, the run time adds up.
+
+		b. Which part(s) of the potential field approach takes up the most computation time?
+		2 parts:
+1. Lots of iterations of computing each gradient
+2. Computing the gradient at so many points
+Multiply these together and the number of total iterations of the gradient really adds up
+
+		c. What is 1 way to make this code run faster? (Hint: One reason why it took so long is that we computed the entire potential field in the grid world so that we could visualize it for learning purposes)
+		This code could run faster if the gradient is calculated live at the point of the robot instead of everywhere once. This way the robot wouldn’t need to calculate all of the points that the robot could never actually reach.

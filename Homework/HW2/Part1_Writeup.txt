@@ -1,0 +1,12 @@
+Part 1:
+	6. https://youtu.be/iQJZSH8crcA
+	7. Describe the key features of the plot generated in python of the frontier of exploration (green), the explored set (yellow), and the final path (blue)
+The frontier of exploration (green) are the nodes that the robot still can explore. The explored set (yellow) are the nodes that the robot has visited. For any nodes in the explored set, the nodes surrounding these nodes are either green, yellow, or blue (aka they can't be not in one of the sets). The final path (blue) is what the robot is going to follow once it has a solution to the maze.
+	8. In the main function increase the number of iterations of inflate_obstacle to 15 and try to run the ASTAR algo.
+		a. What happens?
+		Python outputs an error
+		b. Why does it happen?
+		The robot starts in an obstacle and all of the surrounding nodes are obstacles so A* returns an empty path which causes an error.
+		c. What is the purpose of obstacle inflation
+		To scale the size of obstacles
+	9. https://youtu.be/9z_l15ku1lQ
