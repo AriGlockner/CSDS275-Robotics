@@ -320,7 +320,7 @@ if __name__ == '__main__':
     sim = client.getObject('sim')
 
     worldmap = util.gridmap(sim, 5.0)
-    worldmap.inflate_obstacles(num_iter=10)  # 10 - YOU CAN MODIFY THE INFLATION ITERATIONS
+    worldmap.inflate_obstacles(num_iter=10)  # YOU CAN MODIFY THE INFLATION ITERATIONS
     worldmap.normalize_map()
     worldmap.plot(normalized=True)
 
