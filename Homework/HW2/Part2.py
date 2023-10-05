@@ -30,29 +30,29 @@ def rep_hyper_vec(distances, eta=1, max_dist=2, min_dist=1):
 
     Returns
     -------
-    U : TYPE
+    u : TYPE
         DESCRIPTION.
 
     """
+    # TODO: Check if squaring is necessary
+    # initialize the output array
+    u = np.zeros_like(distances)
 
-    U = np.zeros_like(distances)
+    # distance >= the max distance -> 0
+    u[distances >= max_dist] = 0
 
-    mask = (distances >= max_dist)
-    U[mask] = 0
+    # distance between the min and max distance -> hyperbolic function
+    u[(min_dist <= distances) & (distances < max_dist)] = (
+            eta * (1 / distances[(min_dist <= distances) & (distances < max_dist)] - 1 / max_dist)) # ** 2)
+    # maybe not squared
 
-    mask = (min_dist <= distances) & (distances < max_dist)
+    # distances < the min distance -> constant value
+    # TODO: Check square
+    u[distances < min_dist] = eta * (1 / min_dist - 1 / max_dist) #** 2
+    # maybe not squared
 
-    # here we provide a distance variable for you to use in your calculations
-    distance = distances[mask]
-
-    # Fill this in for points between the minium and maximum threshold
-    U[mask] = eta * (1 / distance - 1 / max_dist) ** 2
-
-    mask = (distances < min_dist)
-    # Fill this in for points below the minimum threshold
-    U[mask] = eta * (1 / min_dist - 1 / max_dist) ** 2
-
-    return U
+    # return the output array
+    return u
 
 
 def att_quadcone_vec(dist, eta1=1, eta2=10, thresh=2):
@@ -77,24 +77,17 @@ def att_quadcone_vec(dist, eta1=1, eta2=10, thresh=2):
         DESCRIPTION.
 
     """
-    U = np.zeros_like(dist)
-    h, w = U.shape
-    mask = (dist <= thresh)
+    # initialize the output array
+    u = np.zeros_like(dist)
 
-    U = U.reshape((-1))
-    mask = mask.reshape((-1))
-    dist = dist.reshape((-1))
+    # distance >= the threshold distance -> quadratic function
+    u[dist >= thresh] = 0.5 * eta1 * (dist[dist >= thresh] - thresh) ** 2
 
-    # Fill this in for points below the threshold
-    distance = dist[mask]  # provided distance value
-    U[mask] = eta1 / 2 * distance ** 2
+    # distance < the threshold distance -> conic function
+    u[dist < thresh] = eta2 * (1 - dist[dist < thresh] / thresh)
 
-    mask = (dist > thresh)
-    # Fill this in for points above the threshold
-    distance = dist[mask]  # provided distance value
-    U[mask] = eta2 * distance - eta2 / 2 * thresh ** 2
-
-    return U.reshape(h, w)
+    # return the output array
+    return u
 
 
 # %%
@@ -106,7 +99,7 @@ if __name__ == '__main__':
     client = zmq.RemoteAPIClient()
     sim = client.getObject('sim')
 
-    # grab the world map from coppeliasim
+    # grab the world map from CoppeliaSim
     worldmap = util.gridmap(sim, 5.0)
     # worldmap.inflate_obstacles(num_iter=10)
     worldmap.normalize_map()
@@ -138,13 +131,13 @@ if __name__ == '__main__':
     # YOU CAN ALTER THE PARAMETERS HERE! ************
     # Default: axis=-1, eta=1, arr=distances_rep, max_dist=15, min_dist=1
     # Current: axis=-1, eta=20, arr=distances_rep, max_dist=25, min_dist=20
-    potentials = np.apply_along_axis(rep_hyper_vec, axis=-1, eta=25, arr=distances_rep, max_dist=25, min_dist=20)
+    potentials = np.apply_along_axis(rep_hyper_vec, axis=-1, eta=1, arr=distances_rep, max_dist=15, min_dist=1)
 
     repulsive_field = np.sum(potentials, axis=-1)  # don't need to change this.
 
     # Default: eta1=0.1, eta2=0.2, thresh=5
     # Current: eta1=1, eta2=5, thresh=0.1
-    attractive_field = att_quadcone_vec(distances_att, eta1=-0.1, eta2=0.2, thresh=10)  # you can change this
+    attractive_field = att_quadcone_vec(distances_att, eta1=0.1, eta2=0.2, thresh=5)  # you can change this
 
     # END OF MODIFICATION ZONE ***********************
 
@@ -163,9 +156,10 @@ if __name__ == '__main__':
 
     # QUESTION 8
     # this line computes gradient descent. you can run this individually
-    path = util.discrete_grad_descent(robot_pos_grid, goal_grid, world_ugrad, max_iter=300)
+    path = util.discrete_grad_descent(robot_pos_grid, goal_grid, world_ugrad, max_iter=300) # 5000 - maybe
 
-    # util.visualize_potential_field_2D(world_u)
+    util.visualize_potential_field_2D(world_u)
     worldmap.plot(normalized=True)
     util.plot_gradient_descent(plt.gca(), path)
+    plt.show()
 # %%

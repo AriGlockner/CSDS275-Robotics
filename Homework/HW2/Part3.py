@@ -96,14 +96,15 @@ def compute_reppotgrad(point, robot_pos, eps=3, min_thresh=1, max_thresh=15):
     """
 
     # Compute the distance between the robot and the obstacle point
-    dist = math.sqrt((point[0] - robot_pos[0]) ** 2 + (point[1] - robot_pos[1]) ** 2)
+    diff = [point[0] - robot_pos[0], point[1] - robot_pos[1]]
+    dist = math.sqrt(diff[0] ** 2 + diff[1] ** 2)
 
-    # Handle the case where the distance is too small or too large
-    if dist < min_thresh or dist > max_thresh:
+    # distance is too far or too close -> no repulsive force
+    if dist > max_thresh or dist < min_thresh:
         return np.zeros(2)
-
-    # Compute the gradient of the repulsive potential
-    return -eps * (1 / dist - 1 / max_thresh) * (1 / dist ** 2)
+    # distance is between the min and max threshold -> repulsive force
+    else:
+        return eps * (1 / dist - 1 / max_thresh) ** 2 * (1 / dist ** 3) * np.array(diff)
 
 
 def compute_attpotgrad(point, robot_pos, eps1=5, eps2=5, max_thresh=5):
@@ -131,17 +132,21 @@ def compute_attpotgrad(point, robot_pos, eps1=5, eps2=5, max_thresh=5):
     """
 
     # Compute the distance between the robot and the goal point
-    diff = math.sqrt((point[0] - robot_pos[0]) ** 2 + (point[1] - robot_pos[1]) ** 2)
-    dist = np.linalg.norm(diff)
+    diff = [point[0] - robot_pos[0], point[1] - robot_pos[1]]
+    dist = math.sqrt(diff[0] ** 2 + diff[1] ** 2)
 
+    # distance is too far -> no attractive force
     if dist > max_thresh:
         return np.zeros(2)
+    # distance is between the min and max threshold -> attractive force -> conic potential
+    elif dist > 1:
+        return eps2 ** diff // dist
+    # distance is between the min and max threshold -> attractive force -> quadratic potential
     else:
-        print(eps1 * diff - eps2 * diff / dist ** 2)
-        return eps1 * diff - eps2 * diff / dist ** 2
+        return eps1 ** diff
+
 
 # %%
-
 run_reactive_control = True
 stop_condition = 0.05  # meters
 
