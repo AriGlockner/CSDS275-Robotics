@@ -125,14 +125,10 @@ if __name__ == '__main__':
 
     # QUESTION 7
     # YOU CAN ALTER THE PARAMETERS HERE! ************
-    # Default: axis=-1, eta=1, arr=distances_rep, max_dist=15, min_dist=1
-    # Current: axis=-1, eta=20, arr=distances_rep, max_dist=25, min_dist=20
     potentials = np.apply_along_axis(rep_hyper_vec, axis=-1, arr=distances_rep, eta=1, max_dist=15, min_dist=1)
 
     repulsive_field = np.sum(potentials, axis=-1)  # don't need to change this.
 
-    # Default: eta1=0.1, eta2=0.2, thresh=5
-    # Current: eta1=1, eta2=5, thresh=0.1
     attractive_field = att_quadcone_vec(distances_att, eta1=0.1, eta2=0.2, thresh=5)  # you can change this
 
     # END OF MODIFICATION ZONE ***********************
@@ -152,7 +148,7 @@ if __name__ == '__main__':
 
     # QUESTION 8
     # this line computes gradient descent. you can run this individually
-    path = util.discrete_grad_descent(robot_pos_grid, goal_grid, world_ugrad, max_iter=300) # 5000 - maybe
+    path = util.discrete_grad_descent(robot_pos_grid, goal_grid, world_ugrad, max_iter=300)
 
     util.visualize_potential_field_2D(world_u)
     worldmap.plot(normalized=True)

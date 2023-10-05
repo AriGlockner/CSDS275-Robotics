@@ -306,15 +306,13 @@ class ASTAR:
             return [[x, y]] + self.trace_path(self.get_parent_point(x, y)[0], self.get_parent_point(x, y)[1])
 
 
-
 # %%
-
 if __name__ == '__main__':
     '''
-     This main function initializes the world from the vision sensor in coppelia sim.
-     Once this is done it creates an ASTAR object and then runs ASTAR for the specified number of iterations
-     It uses the path list to define a real path in coppelia sim from which the robot will follow.
-     '''
+    This main function initializes the world from the vision sensor in coppelia sim.
+    Once this is done it creates an ASTAR object and then runs ASTAR for the specified number of iterations
+    It uses the path list to define a real path in coppelia sim from which the robot will follow.
+    '''
 
     client = zmq.RemoteAPIClient()
     sim = client.getObject('sim')
