@@ -3,7 +3,7 @@
 """
 Created on Sat Jul  1 17:16:06 2023
 
-@author: zxc703
+@author: ajg228
 """
 import coppeliasim_zmqremoteapi_client as zmq
 import matplotlib.pyplot as plt

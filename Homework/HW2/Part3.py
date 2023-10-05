@@ -3,7 +3,7 @@
 """
 Created on Wed Jun 21 21:59:50 2023
 
-@author: zxc703
+@author: ajg228
 """
 import math
 

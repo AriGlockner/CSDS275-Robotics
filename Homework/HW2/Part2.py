@@ -3,7 +3,7 @@
 """
 Created on Mon Aug 14 19:28:07 2023
 
-@author: zxc703
+@author: ajg228
 """
 
 import coppeliasim_zmqremoteapi_client as zmq
@@ -34,7 +34,6 @@ def rep_hyper_vec(distances, eta=1, max_dist=2, min_dist=1):
         DESCRIPTION.
 
     """
-    # TODO: Check if squaring is necessary
     # initialize the output array
     u = np.zeros_like(distances)
 
@@ -47,7 +46,6 @@ def rep_hyper_vec(distances, eta=1, max_dist=2, min_dist=1):
     # maybe not squared
 
     # distances < the min distance -> constant value
-    # TODO: Check square
     u[distances < min_dist] = eta * (1 / min_dist - 1 / max_dist) #** 2
     # maybe not squared
 
@@ -77,14 +75,15 @@ def att_quadcone_vec(dist, eta1=1, eta2=10, thresh=2):
         DESCRIPTION.
 
     """
+    # TODO: Change
     # initialize the output array
     u = np.zeros_like(dist)
 
-    # distance >= the threshold distance -> quadratic function
-    u[dist >= thresh] = 0.5 * eta1 * (dist[dist >= thresh] - thresh) ** 2
+    # distance >= the threshold distance -> conic function
+    u[dist >= thresh] = eta2 * dist[dist >= thresh] - eta2 * thresh + eta1 * thresh ** 2
 
-    # distance < the threshold distance -> conic function
-    u[dist < thresh] = eta2 * (1 - dist[dist < thresh] / thresh)
+    # distance < the threshold distance -> quadratic function
+    u[dist < thresh] = eta1 * dist[dist < thresh] ** 2
 
     # return the output array
     return u
