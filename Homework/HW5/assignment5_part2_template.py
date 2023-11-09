@@ -11,10 +11,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import copy
 import ecse275_vision_utils as util
-import my_functions as func
+from Homework.HW5 import my_functions
 
-
-''' Initialization code. DON'T MODIFY'''   
+''' Initialization code. DON'T MODIFY'''
 # Declare the following parameters
 f = 0.020 # focal length in meters
 pixels_per_inch = 560.0165995731867 
@@ -72,6 +71,21 @@ Hint: you can create lists and iterate through them performing very similar oper
 '''
 
 pos_world_list = []
+for i in range(3):
+    # 1. threshold the image to get the pixel locations where the cube is located
+    pixel_locations = my_functions.threshold_RGB(image, i)
+
+    # 2. calculate the pixel centroid
+    pixcel_centroid = my_functions.get_pixel_centroid(pixel_locations)
+
+    # 3. calculate the position of the centroid in the camera coordinate frame
+    pos_cam = my_functions.compute_pos_from_pix(pixcel_centroid, resolution, f, pixels_per_inch, z)
+
+    # 4. compute pos_world by converting the centroid position from the camera coordinate frame to the world coordinate frame using the util.hand_eye_transform function
+    pos_world_list.append(util.hand_eye_transform(pos_cam, T_cam_world))
+
+
+#pos_world_list = pos_world_list[0]
 
 
 #%% Movement Commands
@@ -79,10 +93,10 @@ pos_world_list = []
 ''' END OF MODIFIABLE SECTION. DO NOT MODIFY THE CODE BELOW'''
 
 for i in range(3):
-    util.move_to(sim,list(pos_world_list[i]))
+    util.move_to(sim, list(pos_world_list[i]))
     util.toggle_gripper(sim)
     droppt[2] = droppt[2]+0.015
-    util.move_to(sim,droppt)
+    util.move_to(sim, droppt)
     util.toggle_gripper(sim)
 
 

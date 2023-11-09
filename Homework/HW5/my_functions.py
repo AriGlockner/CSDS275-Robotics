@@ -80,7 +80,7 @@ def compute_pos_from_pix(pixel_uv, resolution, focal_length, pixels_per_inch, z_
 
 
 def threshold_RGB(image_array, target_color, thresh=25):
-    '''
+    """
     PART 2 QUESTION 1
     Apply a threshold to an RGB image array to identify pixel positions exceeding a specified threshold in a specific color channel.
 
@@ -92,9 +92,7 @@ def threshold_RGB(image_array, target_color, thresh=25):
     Returns:
         tuple: A tuple containing two NumPy arrays. The first array represents the y-positions (rows) of pixels exceeding the threshold in the specified color channel,
             and the second array represents the x-positions (columns) of pixels exceeding the threshold in the specified color channel.
-    
-    '''
-    
-    pixel_positions=0 #placeholder
-    
-    return pixel_positions
+
+    """
+    # Extract the specified color channel
+    return np.where(image_array[:, :, target_color] > thresh)
