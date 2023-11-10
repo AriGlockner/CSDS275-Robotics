@@ -70,7 +70,7 @@ def compute_pos_from_pix(pixel_uv, resolution, focal_length, pixels_per_inch, z_
     uc = resolution[0] / pixels_per_inch + u0 # 2 + u0
     vc = resolution[1] / pixels_per_inch + v0 # 2 + v0
 
-    p = 1 / pixels_per_inch
+    p = 1 / (pixels_per_inch / 2.54)
 
     xc = p * (uc - u0)
     yc = p * (vc - v0)
