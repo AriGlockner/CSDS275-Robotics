@@ -64,19 +64,21 @@ def compute_pos_from_pix(pixel_uv, resolution, focal_length, pixels_per_inch, z_
     of the object.
     """
 
-    # Convert from pixels to image plane coordinates
-    u = pixel_uv[0] - resolution[0] / 2
-    v = pixel_uv[1] - resolution[1] / 2
+    u0 = pixel_uv[0]
+    v0 = pixel_uv[1]
 
-    # Convert from image plane coordinates to camera coordinates
-    x_pos = u * z_distance / focal_length
-    y_pos = v * z_distance / focal_length
+    uc = resolution[0] / pixels_per_inch + u0 # 2 + u0
+    vc = resolution[1] / pixels_per_inch + v0 # 2 + v0
 
-    # Convert from camera coordinates to world coordinates
-    x_pos /= pixels_per_inch
-    y_pos /= pixels_per_inch
+    p = 1 / pixels_per_inch
 
-    return np.array((x_pos, y_pos, z_distance))
+    xc = p * (uc - u0)
+    yc = p * (vc - v0)
+
+    x = z_distance * xc / focal_length
+    y = z_distance * yc / focal_length
+
+    return np.array((x, y, z_distance))
 
 
 def threshold_RGB(image_array, target_color, thresh=25):

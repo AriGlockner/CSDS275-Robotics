@@ -36,20 +36,20 @@ T_cam_world = np.array(sim.getObjectMatrix(camera_handle,-1)).reshape(3,4)
 # Obtain the image from the image sensor
 if vision_mode == "gray":
     image,resolution = sim.getVisionSensorImg(camera_handle,1)
-    image = np.array(bytearray(image),dtype='uint8').reshape(resolution[0],resolution[1]) 
+    image = np.array(bytearray(image), dtype='uint8').reshape(resolution[0], resolution[1])
 elif vision_mode == "RGB":
     image,resolution = sim.getVisionSensorImg(camera_handle,0)
-    image = np.array(bytearray(image),dtype='uint8').reshape(resolution[0],resolution[1],3)
+    image = np.array(bytearray(image), dtype='uint8').reshape(resolution[0], resolution[1],3)
 else:
     print("invalid!")
 
 # We need to flip the image to align the horizontal axis with the camera frame
-image = np.flip(image,axis=1)
+image = np.flip(image, axis=1)
 
 # Visualize our sensor image
 if vision_mode == "gray":
     plt.imshow(image,cmap="binary")
-elif vision_mode =="RGB":
+elif vision_mode == "RGB":
     plt.imshow(image)
 
 ''' END OF INITIALIZATION CODE. MODIFY BELOW'''
@@ -81,12 +81,9 @@ for i in range(3):
     # 3. calculate the position of the centroid in the camera coordinate frame
     pos_cam = my_functions.compute_pos_from_pix(pixcel_centroid, resolution, f, pixels_per_inch, z)
 
-    # 4. compute pos_world by converting the centroid position from the camera coordinate frame to the world coordinate frame using the util.hand_eye_transform function
+    # 4. compute pos_world by converting the centroid position from the camera coordinate frame to the world
+    # coordinate frame using the util.hand_eye_transform function
     pos_world_list.append(util.hand_eye_transform(pos_cam, T_cam_world))
-
-
-#pos_world_list = pos_world_list[0]
-
 
 #%% Movement Commands
 

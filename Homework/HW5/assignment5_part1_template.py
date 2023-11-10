@@ -84,7 +84,8 @@ pixcel_centroid = my_functions.get_pixel_centroid(pixel_locations)
 # 3. calculate the position of the centroid in the camera coordinate frame
 pos_cam = my_functions.compute_pos_from_pix(pixcel_centroid, resolution, f, pixels_per_inch, z)
 
-# 4. compute pos_world by converting the centroid position from the camera coordinate frame to the world coordinate frame using the util.hand_eye_transform function
+# 4. compute pos_world by converting the centroid position from the camera coordinate frame to the world coordinate
+# frame using the util.hand_eye_transform function
 pos_world = util.hand_eye_transform(pos_cam, T_cam_world)
 
 '''END OF QUESTION 4'''
