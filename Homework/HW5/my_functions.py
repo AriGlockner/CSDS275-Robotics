@@ -14,7 +14,7 @@ import copy
 '''------------------ COMPLETE THE FUNCTIONS BELOW    --------------------------'''
 
 
-def threshold(image_array,thresh=25):
+def threshold(image_array, thresh=25):
     """
     PART 1 QUESTION 3A
     Apply a threshold to a grayscale image array to identify pixel positions exceeding a specified threshold.
@@ -45,7 +45,6 @@ def get_pixel_centroid(pixel_positions):
         The first element of the array (centroid[0]) corresponds to the x-coordinate (u-bar),
         and the second element (centroid[1]) corresponds to the y-coordinate (v-bar) of the centroid.
     """
-    print('Mean:', np.array((np.mean(pixel_positions[1]), np.mean(pixel_positions[0]))))
     return np.array((np.mean(pixel_positions[1]), np.mean(pixel_positions[0])))
 
 
@@ -56,7 +55,7 @@ def compute_pos_from_pix(pixel_uv, resolution, focal_length, pixels_per_inch, z_
 
     Args:
         pixel_uv (tuple): A tuple representing the pixel coordinates (u, v) in the camera image.
-        resolution (int): The resolution of the camera image, typically measured in pixels.
+        resolution (tuple): The resolution of the camera image, typically measured in pixels.
         focal_length (float): The focal length of the camera lens in meters.
         pixels_per_inch (float): The number of pixels per inch of the camera sensor.
         z_distance (float): The distance of the object from the camera along the optical axis, in meters.
@@ -65,19 +64,34 @@ def compute_pos_from_pix(pixel_uv, resolution, focal_length, pixels_per_inch, z_
     of the object.
     """
 
-    u0 = pixel_uv[0]
-    v0 = pixel_uv[1]
-
-    uc = resolution[0] / 2
-    vc = resolution[1] / 2
+    uc = pixel_uv[0]
+    vc = pixel_uv[1]
 
     p = pixels_per_inch / 0.0254
 
     xc = p * (uc - u0)
     yc = p * (vc - v0)
 
+    x = xc * z_distance / focal_length
+    y = yc * z_distance / focal_length
+
+    '''
+    u0 = pixel_uv[0] / resolution[0]
+    v0 = pixel_uv[1] / resolution[1]
+
+    uc = resolution[0] / 2
+    vc = resolution[1] / 2
+
+    p = pixels_per_inch / 25.4  # 0.0254
+
+    xc = p * (uc - u0)
+    yc = p * (vc - v0)
+
     x = z_distance * xc / focal_length
     y = z_distance * yc / focal_length
+
+    return np.array((x, y, z_distance))
+    '''
 
     return np.array((x, y, z_distance))
 
