@@ -63,14 +63,26 @@ def compute_pos_from_pix(pixel_uv, resolution, focal_length, pixels_per_inch, z_
     Returns: numpy.ndarray: A 1D NumPy array of shape (3,) representing the real-world position coordinates (x, y, z)
     of the object.
     """
+    '''
+    print(resolution)
+    # Convert Pixels to normalized coordinates
+    u_norm = (pixel_uv[0] - resolution[0] / pixels_per_inch) / resolution[0]
+    v_norm = (pixel_uv[1] - resolution[1] / pixels_per_inch) / resolution[1]
 
+    # Convert normalized coordinates to camera coordinates
+    x_cam = u_norm * focal_length * pixels_per_inch / 2.54
+    y_cam = v_norm * focal_length * pixels_per_inch / 2.54
+
+    # return the world coordinates, which are the converted camera coordinates
+    return np.array((x_cam * z_distance / focal_length, y_cam * z_distance / focal_length, z_distance))
+    '''
     u0 = pixel_uv[0]
     v0 = pixel_uv[1]
 
-    uc = resolution[0] / pixels_per_inch + u0 # 2 + u0
-    vc = resolution[1] / pixels_per_inch + v0 # 2 + v0
+    uc = resolution[0] / pixels_per_inch + u0
+    vc = resolution[1] / pixels_per_inch + v0
 
-    p = 1 / (pixels_per_inch / 2.54)
+    p = 2.54 / pixels_per_inch
 
     xc = p * (uc - u0)
     yc = p * (vc - v0)
@@ -96,5 +108,9 @@ def threshold_RGB(image_array, target_color, thresh=25):
             and the second array represents the x-positions (columns) of pixels exceeding the threshold in the specified color channel.
 
     """
+    target_color = target_color % 3  # Ensure that the target color is in the range 0-2
+    taget_channel = image_array[:, :, target_color]
+    threshold_channel = np.where(taget_channel > thresh)
+
     # Extract the specified color channel
-    return np.where(image_array[:, :, target_color] > thresh)
+    return np.where(threshold_channel)

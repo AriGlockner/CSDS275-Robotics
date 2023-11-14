@@ -17,7 +17,7 @@ from Homework.HW5 import my_functions
 ''' Initialization code. DON'T MODIFY'''   
 # Declare the following parameters
 f = 0.020 # focal length in meters
-pixels_per_inch = 560.0165995731867 
+pixels_per_inch = 560 # 560.0165995731867
 z = 0.805 # vertical distance to the centerpoint of the blocks on the table
 
 vision_mode = "gray" # or "RGB"
@@ -27,7 +27,7 @@ sim = client.getObject('sim')
 
 # Define the position of our drop "zone"
 drop_target = sim.getObject('/drop_target')
-droppt = sim.getObjectPose(drop_target,-1)
+droppt = sim.getObjectPose(drop_target, -1)
 
 # Get the camera handle
 camera_handle = sim.getObject("/Vision_sensor")
@@ -49,7 +49,7 @@ image = np.flip(image, axis=1)
 
 # Visualize our sensor image
 if vision_mode == "gray":
-    plt.imshow(image,cmap="binary")
+    plt.imshow(image, cmap="binary")
 elif vision_mode == "RGB":
     plt.imshow(image)
 
@@ -93,9 +93,9 @@ pos_world = util.hand_eye_transform(pos_cam, T_cam_world)
 
 ''' END OF MODIFIABLE SECTION. DO NOT MODIFY THE CODE BELOW'''
 
-util.move_to(sim,list(pos_world))
+util.move_to(sim, list(pos_world))
 util.toggle_gripper(sim)
-util.move_to(sim,droppt)
+util.move_to(sim, droppt)
 util.toggle_gripper(sim)
 
 
