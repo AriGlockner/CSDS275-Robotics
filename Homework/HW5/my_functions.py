@@ -45,6 +45,7 @@ def get_pixel_centroid(pixel_positions):
         The first element of the array (centroid[0]) corresponds to the x-coordinate (u-bar),
         and the second element (centroid[1]) corresponds to the y-coordinate (v-bar) of the centroid.
     """
+    print('Mean:', np.array((np.mean(pixel_positions[1]), np.mean(pixel_positions[0]))))
     return np.array((np.mean(pixel_positions[1]), np.mean(pixel_positions[0])))
 
 
@@ -63,26 +64,14 @@ def compute_pos_from_pix(pixel_uv, resolution, focal_length, pixels_per_inch, z_
     Returns: numpy.ndarray: A 1D NumPy array of shape (3,) representing the real-world position coordinates (x, y, z)
     of the object.
     """
-    '''
-    print(resolution)
-    # Convert Pixels to normalized coordinates
-    u_norm = (pixel_uv[0] - resolution[0] / pixels_per_inch) / resolution[0]
-    v_norm = (pixel_uv[1] - resolution[1] / pixels_per_inch) / resolution[1]
 
-    # Convert normalized coordinates to camera coordinates
-    x_cam = u_norm * focal_length * pixels_per_inch / 2.54
-    y_cam = v_norm * focal_length * pixels_per_inch / 2.54
-
-    # return the world coordinates, which are the converted camera coordinates
-    return np.array((x_cam * z_distance / focal_length, y_cam * z_distance / focal_length, z_distance))
-    '''
     u0 = pixel_uv[0]
     v0 = pixel_uv[1]
 
-    uc = resolution[0] / pixels_per_inch + u0
-    vc = resolution[1] / pixels_per_inch + v0
+    uc = resolution[0] / 2
+    vc = resolution[1] / 2
 
-    p = 2.54 / pixels_per_inch
+    p = pixels_per_inch / 0.0254
 
     xc = p * (uc - u0)
     yc = p * (vc - v0)
