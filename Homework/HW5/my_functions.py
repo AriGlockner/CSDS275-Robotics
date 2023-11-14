@@ -63,7 +63,17 @@ def compute_pos_from_pix(pixel_uv, resolution, focal_length, pixels_per_inch, z_
     Returns: numpy.ndarray: A 1D NumPy array of shape (3,) representing the real-world position coordinates (x, y, z)
     of the object.
     """
+    u0 = v0 = resolution[0] / 2
 
+    p = 1 / (pixels_per_inch / 2.54) / 100
+
+    xc = p * (pixel_uv[0] - u0)
+    yc = p * (pixel_uv[1] - v0)
+
+    x = z_distance * xc / focal_length
+    y = z_distance * yc / focal_length
+
+    '''
     uc = pixel_uv[0]
     vc = pixel_uv[1]
 
@@ -74,7 +84,7 @@ def compute_pos_from_pix(pixel_uv, resolution, focal_length, pixels_per_inch, z_
 
     x = xc * z_distance / focal_length
     y = yc * z_distance / focal_length
-
+    '''
     '''
     u0 = pixel_uv[0] / resolution[0]
     v0 = pixel_uv[1] / resolution[1]
