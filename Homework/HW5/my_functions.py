@@ -89,9 +89,8 @@ def threshold_RGB(image_array, target_color, thresh=25):
             and the second array represents the x-positions (columns) of pixels exceeding the threshold in the specified color channel.
 
     """
-    target_color = target_color % 3  # Ensure that the target color is in the range 0-2
-    taget_channel = image_array[:, :, target_color]
-    threshold_channel = np.where(taget_channel > thresh)
+    if target_color > 2 or target_color < 0:
+        raise ValueError("target_color must be 0, 1, or 2")
 
     # Extract the specified color channel
-    return np.where(threshold_channel)
+    return np.where(image_array[:, :, target_color] > thresh)
