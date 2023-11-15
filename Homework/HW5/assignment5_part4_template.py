@@ -18,6 +18,42 @@ import ecse275_vision_utils as util
 import my_functions_solution as func
 
 '''PASTE YOUR NEURAL NETWORKS HERE'''
+class Net(nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        self.fc1 = nn.Linear(784, 128)
+        self.fc2 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(64, 10)
+
+    def forward(self, x):
+        x = x.view(-1, 28 * 28)  # Flatten the input
+        x = self.fc1(x) # Linear Layer ReLU
+        x = self.fc2(x) # Linear Layer ReLU
+        x = self.fc3(x) # Linear Layer
+        return x
+
+class CNN(nn.Module):
+    def __init__(self):
+        super(CNN, self).__init__()
+        self.conv1 = nn.Conv2d(1, 128, 5)
+        self.pool1 = nn.MaxPool2d(2, 2)
+        self.conv2 = nn.Conv2d(128, 128, 3)
+        self.pool2 = nn.MaxPool2d(2, 2)
+        self.conv3 = nn.Conv2d(128, 64, 2)
+        self.pool3 = nn.MaxPool2d(2, 2)
+        self.fc1 = nn.Linear(256, 128)
+        self.fc2 = nn.Linear(128, 10)
+
+    def forward(self, x):
+        x = self.pool1(self.conv1(x)) # Conv ReLU Pool
+        x = self.pool2(self.conv2(x)) # Conv ReLU Pool
+        x = self.pool3(self.conv3(x)) # Conv ReLU Pool
+        x = x.view(-1, 256)
+        x = self.fc1(x) # ReLU Linear Layer
+        x = self.fc2(x) # Linear Layer
+        return x
+
+'''END OF NEURAL NETWORKS'''
 
 plt.close("all")
     
@@ -58,7 +94,7 @@ for i in range(len(list_of_cube_images)):
     plt.figure()
     plt.imshow(list_of_cube_images[i],cmap="binary")
 
-model_type = "FCN" # specify which model you would like here. Choices are FCN, CNN, CNNaug
+model_type = "CNNaug" # specify which model you would like here. Choices are FCN, CNN, CNNaug
 
 if model_type=="FCN":
     net = Net()
